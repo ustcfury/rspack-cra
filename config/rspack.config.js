@@ -1,50 +1,50 @@
 /** @type {import('@rspack/cli').Configuration} */
-const fs = require('fs');
-const path = require('path');
-const resolve = require('resolve');
-const rspack = require('@rspack/core');
-const ReactRefreshPlugin = require('@rspack/plugin-react-refresh');
-const ESLintPlugin = require('eslint-rspack-plugin');
-const getClientEnvironment = require('./env');
-const paths = require('./paths');
-const modules = require('./modules');
-const createDevServerConfig = require('./webpackDevServer.config.js');
+const fs = require("fs");
+const path = require("path");
+const resolve = require("resolve");
+const rspack = require("@rspack/core");
+const ReactRefreshPlugin = require("@rspack/plugin-react-refresh");
+const ESLintPlugin = require("eslint-rspack-plugin");
+const getClientEnvironment = require("./env");
+const paths = require("./paths");
+const modules = require("./modules");
+const createDevServerConfig = require("./webpackDevServer.config.js");
 
 // Source maps are resource heavy and can cause out of memory issue for large source files.
-const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== 'false';
+const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== "false";
 const webpackEnv = process.env.NODE_ENV;
-const isEnvDevelopment = webpackEnv === 'development';
-const isEnvProduction = webpackEnv === 'production';
+const isEnvDevelopment = webpackEnv === "development";
+const isEnvProduction = webpackEnv === "production";
 
-console.log('isEnvDevelopment', isEnvDevelopment);
-console.log('isEnvProduction', isEnvProduction);
+console.log("isEnvDevelopment", isEnvDevelopment);
+console.log("isEnvProduction", isEnvProduction);
 
-const emitErrorsAsWarnings = process.env.ESLINT_NO_DEV_ERRORS === 'true';
-const disableESLintPlugin = process.env.DISABLE_ESLINT_PLUGIN === 'true';
+const emitErrorsAsWarnings = process.env.ESLINT_NO_DEV_ERRORS === "true";
+const disableESLintPlugin = process.env.DISABLE_ESLINT_PLUGIN === "true";
 
 // Check if Tailwind config exists
 const useTailwind = fs.existsSync(
-  path.join(paths.appPath, 'tailwind.config.js')
+  path.join(paths.appPath, "tailwind.config.js")
 );
 
 const imageInlineSizeLimit = parseInt(
-  process.env.IMAGE_INLINE_SIZE_LIMIT || '10000'
+  process.env.IMAGE_INLINE_SIZE_LIMIT || "10000"
 );
 
 // Check if TypeScript is setup
 const useTypeScript = fs.existsSync(paths.appTsConfig);
 const ForkTsCheckerWebpackPlugin =
-  process.env.TSC_COMPILE_ON_ERROR === 'true'
-    ? require('react-dev-utils/ForkTsCheckerWarningWebpackPlugin')
-    : require('react-dev-utils/ForkTsCheckerWebpackPlugin');
+  process.env.TSC_COMPILE_ON_ERROR === "true"
+    ? require("react-dev-utils/ForkTsCheckerWarningWebpackPlugin")
+    : require("react-dev-utils/ForkTsCheckerWebpackPlugin");
 
 const hasJsxRuntime = (() => {
-  if (process.env.DISABLE_NEW_JSX_TRANSFORM === 'true') {
+  if (process.env.DISABLE_NEW_JSX_TRANSFORM === "true") {
     return false;
   }
 
   try {
-    require.resolve('react/jsx-runtime');
+    require.resolve("react/jsx-runtime");
     return true;
   } catch (e) {
     return false;
@@ -59,21 +59,21 @@ const getpostcss = () => {
     // Options for PostCSS as we reference these options twice
     // Adds vendor prefixing based on your specified browser support in
     // package.json
-    loader: require.resolve('postcss-loader'),
+    loader: require.resolve("postcss-loader"),
     options: {
       postcssOptions: {
         // Necessary for external CSS imports to work
         // https://github.com/facebook/create-react-app/issues/2677
-        ident: 'postcss',
+        ident: "postcss",
         config: false,
         plugins: !useTailwind
           ? [
-              'postcss-flexbugs-fixes',
+              "postcss-flexbugs-fixes",
               [
-                'postcss-preset-env',
+                "postcss-preset-env",
                 {
                   autoprefixer: {
-                    flexbox: 'no-2009',
+                    flexbox: "no-2009",
                   },
                   stage: 3,
                 },
@@ -81,16 +81,16 @@ const getpostcss = () => {
               // Adds PostCSS Normalize as the reset css with default options,
               // so that it honors browserslist config in package.json
               // which in turn let's users customize the target behavior as per their needs.
-              'postcss-normalize',
+              "postcss-normalize",
             ]
           : [
-              'tailwindcss',
-              'postcss-flexbugs-fixes',
+              "tailwindcss",
+              "postcss-flexbugs-fixes",
               [
-                'postcss-preset-env',
+                "postcss-preset-env",
                 {
                   autoprefixer: {
-                    flexbox: 'no-2009',
+                    flexbox: "no-2009",
                   },
                   stage: 3,
                 },
@@ -103,16 +103,16 @@ const getpostcss = () => {
 };
 
 const config = {
-  target: ['browserslist'],
-  stats: 'errors-warnings',
-  mode: isEnvProduction ? 'production' : isEnvDevelopment && 'development',
+  target: ["browserslist"],
+  stats: "errors-warnings",
+  mode: isEnvProduction ? "production" : isEnvDevelopment && "development",
   devtool: isEnvProduction
     ? shouldUseSourceMap
-      ? 'source-map'
+      ? "source-map"
       : false
-    : isEnvDevelopment && 'cheap-module-source-map',
+    : isEnvDevelopment && "cheap-module-source-map",
   entry: {
-    main: './src/index.tsx', // 配置项目入口文件
+    main: "./src/index.tsx", // 配置项目入口文件
   },
   output: {
     // The build folder.
@@ -122,13 +122,13 @@ const config = {
     // There will be one main bundle, and one file per asynchronous chunk.
     // In development, it does not produce real files.
     filename: isEnvProduction
-      ? 'static/js/[name].[contenthash:8].js'
-      : isEnvDevelopment && 'static/js/bundle.js',
+      ? "static/js/[name].[contenthash:8].js"
+      : isEnvDevelopment && "static/js/bundle.js",
     // There are also additional JS chunk files if you use code splitting.
     chunkFilename: isEnvProduction
-      ? 'static/js/[name].[contenthash:8].chunk.js'
-      : isEnvDevelopment && 'static/js/[name].chunk.js',
-    assetModuleFilename: 'static/media/[name].[hash][ext]',
+      ? "static/js/[name].[contenthash:8].chunk.js"
+      : isEnvDevelopment && "static/js/[name].chunk.js",
+    assetModuleFilename: "static/media/[name].[hash][ext]",
     // webpack uses `publicPath` to determine where the app is being served from.
     // It requires a trailing slash, or the file assets will get an incorrect path.
     // We inferred the "public path" (such as / or /my-project) from homepage.
@@ -145,14 +145,9 @@ const config = {
   resolve: {
     extensions: paths.moduleFileExtensions
       .map((ext) => `.${ext}`)
-      .filter((ext) => useTypeScript || !ext.includes('ts')),
+      .filter((ext) => useTypeScript || !ext.includes("ts")),
     alias: {
       ...(modules.webpackAliases || {}),
-    },
-  },
-  experiments: {
-    rspackFuture: {
-      disableTransformByDefault: true,
     },
   },
   module: {
@@ -163,8 +158,8 @@ const config = {
           // https://github.com/jshttp/mime-db
           {
             test: [/\.avif$/],
-            type: 'asset',
-            mimetype: 'image/avif',
+            type: "asset",
+            mimetype: "image/avif",
             parser: {
               dataUrlCondition: {
                 maxSize: imageInlineSizeLimit,
@@ -176,7 +171,7 @@ const config = {
           // A missing `test` is equivalent to a match.
           {
             test: [/\.bmp$/, /\.gif$/, /\.jpe?g$/, /\.png$/],
-            type: 'asset',
+            type: "asset",
             parser: {
               dataUrlCondition: {
                 maxSize: imageInlineSizeLimit,
@@ -185,7 +180,7 @@ const config = {
           },
           {
             test: /\.svg$/i,
-            type: 'asset',
+            type: "asset",
             resourceQuery: /url/,
           },
           {
@@ -193,7 +188,7 @@ const config = {
             issuer: /\.[jt]sx?$/,
             use: [
               {
-                loader: '@svgr/webpack',
+                loader: "@svgr/webpack",
                 options: {
                   prettier: false,
                   svgo: false,
@@ -209,14 +204,14 @@ const config = {
           {
             test: /\.css$/,
             use: [getpostcss()],
-            type: 'css',
+            type: "css",
           },
           {
             test: /\.(scss|sass)$/,
             use: [
               getpostcss(),
               {
-                loader: require.resolve('resolve-url-loader'),
+                loader: require.resolve("resolve-url-loader"),
                 options: {
                   sourceMap: isEnvProduction
                     ? shouldUseSourceMap
@@ -225,20 +220,20 @@ const config = {
                 },
               },
               {
-                loader: 'sass-loader',
+                loader: "sass-loader",
                 options: {
                   sourceMap: true,
                 },
               },
             ],
-            type: 'css/auto',
+            type: "css/auto",
           },
           {
             test: /\.less$/,
             use: [
               getpostcss(),
               {
-                loader: 'less-loader',
+                loader: "less-loader",
                 options: {
                   lessOptions: {
                     modifyVars: {},
@@ -247,31 +242,31 @@ const config = {
                 },
               },
             ],
-            type: 'css/auto',
+            type: "css/auto",
           },
           {
             test: /\.(js|mjs|jsx|ts|tsx)$/,
-            loader: 'builtin:swc-loader',
+            loader: "builtin:swc-loader",
             include: paths.appSrc,
             exclude: [/node_modules/],
             options: {
               sourceMap: true,
               env: {
-                targets: ['last 10 chrome version'],
-                mode: 'usage',
-                coreJs: '3.30.1',
+                targets: ["last 10 chrome version"],
+                mode: "usage",
+                coreJs: "3.30.1",
               },
               jsc: {
                 externalHelpers: true,
                 parser: {
-                  syntax: 'typescript',
+                  syntax: "typescript",
                   tsx: true,
                 },
                 transform: {
                   react: {
-                    runtime: hasJsxRuntime ? 'automatic' : 'classic',
-                    pragma: 'React.createElement',
-                    pragmaFrag: 'React.Fragment',
+                    runtime: hasJsxRuntime ? "automatic" : "classic",
+                    pragma: "React.createElement",
+                    pragmaFrag: "React.Fragment",
                     throwIfNamespace: true,
                     development: isEnvDevelopment,
                     refresh: isEnvDevelopment,
@@ -280,7 +275,7 @@ const config = {
                 },
               },
             },
-            type: 'javascript/auto',
+            type: "javascript/auto",
           },
         ],
       },
@@ -289,13 +284,14 @@ const config = {
   devServer: createDevServerConfig(),
   plugins: [
     isEnvDevelopment && new ReactRefreshPlugin(),
+    isEnvDevelopment && new rspack.HotModuleReplacementPlugin(),
     new rspack.DefinePlugin(env.stringified),
     // TypeScript type checking
     useTypeScript &&
       new ForkTsCheckerWebpackPlugin({
         async: isEnvDevelopment,
         typescript: {
-          typescriptPath: resolve.sync('typescript', {
+          typescriptPath: resolve.sync("typescript", {
             basedir: paths.appNodeModules,
           }),
           configOverwrite: {
@@ -315,7 +311,7 @@ const config = {
           diagnosticOptions: {
             syntactic: true,
           },
-          mode: 'write-references',
+          mode: "write-references",
           // profile: true,
         },
         issue: {
@@ -324,62 +320,62 @@ const config = {
           // '../cra-template-typescript/template/src/App.tsx'
           // otherwise.
           include: [
-            { file: '../**/src/**/*.{ts,tsx}' },
-            { file: '**/src/**/*.{ts,tsx}' },
+            { file: "../**/src/**/*.{ts,tsx}" },
+            { file: "**/src/**/*.{ts,tsx}" },
           ],
           exclude: [
-            { file: '**/src/**/__tests__/**' },
-            { file: '**/src/**/?(*.){spec|test}.*' },
-            { file: '**/src/setupProxy.*' },
-            { file: '**/src/setupTests.*' },
+            { file: "**/src/**/__tests__/**" },
+            { file: "**/src/**/?(*.){spec|test}.*" },
+            { file: "**/src/setupProxy.*" },
+            { file: "**/src/setupTests.*" },
           ],
         },
         logger: {
-          infrastructure: 'silent',
+          infrastructure: "silent",
         },
       }),
     !disableESLintPlugin &&
       new ESLintPlugin({
         // Plugin options
-        extensions: ['js', 'mjs', 'jsx', 'ts', 'tsx'],
-        formatter: require.resolve('react-dev-utils/eslintFormatter'),
-        eslintPath: require.resolve('eslint'),
+        extensions: ["js", "mjs", "jsx", "ts", "tsx"],
+        formatter: require.resolve("react-dev-utils/eslintFormatter"),
+        eslintPath: require.resolve("eslint"),
         failOnError: !(isEnvDevelopment && emitErrorsAsWarnings),
         context: paths.appSrc,
         cache: true,
         cacheLocation: path.resolve(
           paths.appNodeModules,
-          '.cache/.eslintcache'
+          ".cache/.eslintcache"
         ),
         // ESLint class options
         cwd: paths.appPath,
         resolvePluginsRelativeTo: __dirname,
         baseConfig: {
-          extends: [require.resolve('eslint-config-react-app/base')],
+          extends: [require.resolve("eslint-config-react-app/base")],
           rules: {
             ...(!hasJsxRuntime && {
-              'react/react-in-jsx-scope': 'error',
+              "react/react-in-jsx-scope": "error",
             }),
           },
         },
       }),
-      new rspack.HtmlRspackPlugin({
-        template: './public/index.html', // 对齐 CRA 生成index.html
-        filename: 'index.html',
-        templateParameters: {
-          REACT_APP_IS_PRODUCTION: env.raw.REACT_APP_IS_PRODUCTION,
-        },
-      }),
-      new rspack.CopyRspackPlugin({
-        patterns: [
-          {
-            from: 'public',
-            globOptions: {
-              ignore: ['**/index.html'],
-            },
+    new rspack.HtmlRspackPlugin({
+      template: "./public/index.html", // 对齐 CRA 生成index.html
+      filename: "index.html",
+      templateParameters: {
+        REACT_APP_IS_PRODUCTION: env.raw.REACT_APP_IS_PRODUCTION,
+      },
+    }),
+    new rspack.CopyRspackPlugin({
+      patterns: [
+        {
+          from: "public",
+          globOptions: {
+            ignore: ["**/index.html"],
           },
-        ],
-      }),
+        },
+      ],
+    }),
   ].filter(Boolean),
 };
 module.exports = config;
